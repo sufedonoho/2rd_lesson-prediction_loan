@@ -1,4 +1,4 @@
-import pandas as pd
+import numpy as np
 import data_map
 import matplotlib.pyplot as plt
 import os
@@ -34,24 +34,37 @@ def dataset_view(train_data, test_data):
     plt.subplot(1,2,2,sharey=ax1)
     sns.countplot(x='Risk', data=test_data)
     plt.tight_layout()
-    plt.show()
     plt.savefig(os.path.join(data_map.dataout, '查看数据.png'))
+    #plt.show()
 
 def train_test_model(X_train, y_train, X_test, y_test, parametre, model_name):
     models = []
     accuracy = []
     times =[]
     for para in parametre:
+        #print(para)
         if model_name == 'kNN':
-            print('训练kNN(k={})'.format(para))
+            #print('训练kNN(k={})'.format(para))
             model = KNeighborsClassifier(n_neighbors=para)
         elif model_name == 'LR':
-            print('训练LR(c={})'.format(para))
+            #print('训练LR(c={})'.format(para))
             model = LogisticRegression(C=para)
 
         starttime = time.time()
         model.fit(X_train, y_train)
         endtime = time.time()
         duration = endtime - starttime
-        print('耗时{}s'.format(duration))
-        return duration
+        #print('耗时{}s'.format(duration))
+        acc = model.score(X_test,y_test)
+        #print(acc)
+
+        models.append(model)
+        accuracy.append(acc)
+        times.append(duration)
+
+    mean_duration = np.mean(times)
+    best_index = np.argmax(accuracy)
+    best_acc = accuracy[best_index]
+    best_model = models[best_index]
+
+    return best_acc,best_model,mean_duration
